@@ -1,0 +1,77 @@
+Subject: Unbind 3PID
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="7REaIwWQCioQ6NaBlAQlg8ztbUQj6PKJ"
+
+--7REaIwWQCioQ6NaBlAQlg8ztbUQj6PKJ
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
+
+Hello there!
+
+You or a server on your behalf unbinded your email.
+
+If you didn't make this request, please contact the system administrator.
+
+%DOMAIN_PRETTY% Admins
+
+--7REaIwWQCioQ6NaBlAQlg8ztbUQj6PKJ
+Content-Type: multipart/related;
+	boundary="M3yzHl5YZehm9v4bAM8sKEdcOoVnRnKR";
+	type="text/html"
+
+--M3yzHl5YZehm9v4bAM8sKEdcOoVnRnKR
+Content-Type: text/html; charset=UTF-8
+Content-Disposition: inline
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <style type="text/css">
+            body {
+                margin: 0px;
+            }
+
+            pre, code {
+                word-break: break-word;
+                white-space: pre-wrap;
+            }
+
+            #page {
+                font-family: 'Open Sans', Helvetica, Arial, Sans-Serif;
+                font-color: #454545;
+                font-size: 12pt;
+                width: 100%%;
+                padding: 20px;
+            }
+
+            #inner {
+                width: 640px;
+            }
+
+            .notif_link a, .footer a {
+                color: #76CFA6 ! important;
+            }
+        </style>
+    </head>
+    <body>
+        <table id="page">
+            <tr>
+                <td></td>
+                <td id="inner">
+                    <p>Hello there!</p>
+
+                    <p>You or a server on your behalf unbinded your email.</p>
+
+                    <p>If you didn't make this request, please contact the system administrator.</p>
+
+                    <p>%DOMAIN_PRETTY% Admins</p>
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </body>
+</html>
+--M3yzHl5YZehm9v4bAM8sKEdcOoVnRnKR--
+
+--7REaIwWQCioQ6NaBlAQlg8ztbUQj6PKJ--

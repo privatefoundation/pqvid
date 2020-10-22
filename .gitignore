@@ -1,17 +1,16 @@
-*.sw?
-.#*
-*#
-*~
-.classpath
-.project
-.settings
-bin
-build
-target
-dependency-reduced-pom.xml
-*.sublime-*
-/scratch
-.gradle
-README.html
-*.iml
-.idea
+# Build directories
+.gradle/
+build/
+out/
+
+# IDEs directories
+.idea/
+
+# Local dev config
+/pqvid.yaml
+/application.yaml
+
+# Local dev storage
+/pqvid.db
+
+/docs

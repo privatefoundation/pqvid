@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Stop running instance if needed
+systemctl stop pqvid.service
+
+# Disable service if exists
+systemctl disable pqvid.service
+
+# remove symlink
+rm /usr/bin/pqvid

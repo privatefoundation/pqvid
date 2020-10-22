@@ -1,0 +1,1 @@
+You have been invited to a Matrix room by %SENDER_NAME_OR_ID%. Please get in touch with them for further instructions.

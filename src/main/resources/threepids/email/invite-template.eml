@@ -1,0 +1,81 @@
+Subject: You have been invited to %DOMAIN%
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="7REaIwWQCioQ6NaBlAQlg8ztbUQj6PKJ"
+
+--7REaIwWQCioQ6NaBlAQlg8ztbUQj6PKJ
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
+
+Hi,
+
+%SENDER_NAME_OR_ID% has invited you to the Matrix room [%ROOM_NAME_OR_ID%].
+To join the conversation, register an account using %REGISTER_URL%
+
+You may be required to provide the same email used for this invite during registration.
+You can also register an account on a public server and get in touch with them.
+
+Thanks,
+
+%DOMAIN_PRETTY% Admins
+
+--7REaIwWQCioQ6NaBlAQlg8ztbUQj6PKJ
+Content-Type: multipart/related;
+	boundary="M3yzHl5YZehm9v4bAM8sKEdcOoVnRnKR";
+	type="text/html"
+
+--M3yzHl5YZehm9v4bAM8sKEdcOoVnRnKR
+Content-Type: text/html; charset=UTF-8
+Content-Disposition: inline
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <style type="text/css">
+            body {
+                margin: 0px;
+            }
+
+            pre, code {
+                word-break: break-word;
+                white-space: pre-wrap;
+            }
+
+            #page {
+                font-family: 'Open Sans', Helvetica, Arial, Sans-Serif;
+                font-color: #454545;
+                font-size: 12pt;
+                width: 100%%;
+                padding: 20px;
+            }
+
+            #inner {
+                width: 640px;
+            }
+        </style>
+    </head>
+    <body>
+        <table id="page">
+            <tr>
+                <td> </td>
+                <td id="inner">
+                    <p>Hi,</p>
+
+                    <p>%SENDER_NAME_OR_ID% has invited you to the Matrix room [%ROOM_NAME_OR_ID%].<br/>
+                    To join the conversation, register an account on <a href="%REGISTER_URL%">%DOMAIN%</a>.</p>
+
+                    <p>You may be required to provide the same email used for this invite during registration.<br/>
+                    You can also register an account on a public server and get in touch with them.</p>
+
+                    <p>Thanks,</p>
+
+                    <p>%DOMAIN_PRETTY% Admins</p>
+                </td>
+                <td> </td>
+            </tr>
+        </table>
+    </body>
+</html>
+--M3yzHl5YZehm9v4bAM8sKEdcOoVnRnKR--
+
+--7REaIwWQCioQ6NaBlAQlg8ztbUQj6PKJ--

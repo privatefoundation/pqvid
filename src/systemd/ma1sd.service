@@ -1,0 +1,10 @@
+[Unit]
+Description=pqvid
+After=syslog.target
+
+[Service]
+User=pqvid
+ExecStart=/usr/bin/pqvid -c /etc/pqvid/pqvid.yaml
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,19 @@
+#!/bin/bash -e
+
+# Add service account
+useradd -r pqvid || true
+
+# Set permissions for data directory
+chown -R pqvid:pqvid %DEB_DATA_DIR%
+
+# Create symlink to pqvid run script
+ln -sfT /usr/lib/pqvid/pqvid /usr/bin/pqvid
+
+# Enable systemd service
+systemctl enable pqvid.service
+
+# If we already have a config file setup, we attempt to run pqvid automatically
+# Specifically targeted at upgrades where the service needs to be restarted
+if [ -f "%DEB_CONF_FILE%" ]; then
+    systemctl restart pqvid.service
+fi

@@ -1,34 +1,306 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.2.RELEASE")
-    }
-}
+/*
+ * pqvid - Matrix Identity Server Daemon
+ * Copyright (C) 2017 Kamax Sarl
+ *
+ * https://www.kamax.io/
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import java.util.regex.Pattern
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
+apply plugin: 'application'
+apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.github.ben-manes.versions'
 
-bootJar {
-    baseName = 'restyserv'
-    version =  '0.3.0'
+def confFileName = "pqvid.example.yaml"
+def distDir = "${project.buildDir}/dist"
+
+def debBinPath = "/usr/lib/pqvid"
+def debConfPath = "/etc/pqvid"
+def debDataPath = "/var/lib/pqvid"
+def debSystemdPath = "/etc/systemd/system"
+
+def debConfFileName = confFileName
+def debStartScriptFilename = "pqvid"
+
+def debBuildBasePath = "${project.buildDir}/tmp/debian"
+def debBuildDebianPath = "${debBuildBasePath}/DEBIAN"
+def debBuildBinPath = "${debBuildBasePath}${debBinPath}"
+def debBuildConfPath = "${debBuildBasePath}${debConfPath}"
+def debBuildDataPath = "${debBuildBasePath}${debDataPath}"
+def debBuildSystemdPath = "${debBuildBasePath}${debSystemdPath}"
+
+def dockerImageName = "ma1uta/pqvid"
+def dockerImageTag = "${dockerImageName}:${pqvidVersion()}"
+
+group = 'io.kamax'
+mainClassName = 'io.kamax.mxisd.MxisdStandaloneExec'
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+String pqvidVersion() {
+    def versionPattern = Pattern.compile("v(\\d+\\.)?(\\d+\\.)?(\\d+)(-.*)?")
+
+    String version = System.getenv('MA1SD_BUILD_VERSION')
+    if (version == null || version.size() == 0) {
+        version = gitVersion()
+    }
+    return versionPattern.matcher(version).matches() ? version.substring(1) : version
+}
+
+String gitVersion() {
+    ByteArrayOutputStream out = new ByteArrayOutputStream()
+    exec {
+        commandLine = ['git', 'describe', '--tags', '--always', '--dirty']
+        standardOutput = out
+    }
+    return out.toString().replace(System.lineSeparator(), '')
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:5.1.0'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.27.0'
+    }
 }
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
-    compile("org.springframework.boot:spring-boot-starter-actuator")
-    testCompile('org.springframework.boot:spring-boot-starter-test')
-    testCompile('com.jayway.jsonpath:json-path')
+    // Logging
+    compile 'org.slf4j:slf4j-simple:1.7.25'
+
+    // Easy file management
+    compile 'commons-io:commons-io:2.6'
+
+    // Config management
+    compile 'org.yaml:snakeyaml:1.25'
+
+    // Dependencies from old Matrix-java-sdk
+    compile 'org.apache.commons:commons-lang3:3.9'
+    compile 'com.squareup.okhttp3:okhttp:4.2.2'
+    compile 'commons-codec:commons-codec:1.13'
+
+    // ORMLite
+    compile 'com.j256.ormlite:ormlite-jdbc:5.1'
+
+    // ed25519 handling
+    compile 'net.i2p.crypto:eddsa:0.3.0'
+
+    // LDAP connector
+    compile 'org.apache.directory.api:api-all:1.0.3'
+
+    // DNS lookups
+    compile 'dnsjava:dnsjava:2.1.9'
+
+    // HTTP connections
+    compile 'org.apache.httpcomponents:httpclient:4.5.10'
+
+    // Phone numbers validation
+    compile 'com.googlecode.libphonenumber:libphonenumber:8.10.22'
+
+    // E-mail sending
+    compile 'javax.mail:javax.mail-api:1.6.2'
+    compile 'com.sun.mail:javax.mail:1.6.2'
+
+    // Google Firebase Authentication backend
+    compile 'com.google.firebase:firebase-admin:5.3.0'
+
+    // Connection Pool
+    compile 'com.mchange:c3p0:0.9.5.4'
+
+    // SQLite
+    compile 'org.xerial:sqlite-jdbc:3.28.0'
+
+    // PostgreSQL
+    compile 'org.postgresql:postgresql:42.2.8'
+
+    // MariaDB/MySQL
+    compile 'org.mariadb.jdbc:mariadb-java-client:2.5.1'
+
+    // Twilio SDK for SMS
+    compile 'com.twilio.sdk:twilio:7.45.0'
+
+    // SendGrid SDK to send emails from GCE
+    compile 'com.sendgrid:sendgrid-java:2.2.2'
+
+    // ZT-Exec for exec identity store
+    compile 'org.zeroturnaround:zt-exec:1.11'
+
+    // HTTP server
+    compile 'io.undertow:undertow-core:2.0.27.Final'
+
+    // Command parser for AS interface
+    implementation 'commons-cli:commons-cli:1.4'
+
+    testCompile 'junit:junit:4.13-rc-1'
+    testCompile 'com.github.tomakehurst:wiremock:2.25.1'
+    testCompile 'com.unboundid:unboundid-ldapsdk:4.0.12'
+    testCompile 'com.icegreen:greenmail:1.5.11'
 }
 
+jar {
+    manifest {
+        attributes(
+                'Implementation-Version': pqvidVersion()
+        )
+    }
+}
+
+shadowJar {
+    baseName = project.name
+    classifier = null
+    version = null
+}
+
+task debBuild(dependsOn: shadowJar) {
+    doLast {
+        String debVersion = pqvidVersion()
+        println "Version for package: ${debVersion}"
+        mkdir distDir
+        mkdir debBuildBasePath
+        mkdir debBuildDebianPath
+        mkdir debBuildBinPath
+        mkdir debBuildConfPath
+        mkdir debBuildDataPath
+        mkdir debBuildSystemdPath
+
+        copy {
+            from "${project.buildDir}/libs/pqvid.jar"
+            into debBuildBinPath
+        }
+
+        copy {
+            from "${project.file("src/script/" + debStartScriptFilename)}"
+            into debBuildBinPath
+        }
+
+        copy {
+            from(project.file(confFileName)) {
+                rename confFileName, debConfFileName
+            }
+            into debBuildConfPath
+        }
+
+        ant.replaceregexp( // FIXME adapt to new config format
+                file: "${debBuildConfPath}/${debConfFileName}",
+                match: "key:\\R  path:(.*)",
+                replace: "key:\n  path: '${debDataPath}/keys'"
+        )
+
+        ant.replaceregexp( // FIXME adapt to new config format
+                file: "${debBuildConfPath}/${debConfFileName}",
+                match: "storage:\\R  provider:\\R    sqlite:\\R      database:(.*)",
+                replace: "storage:\n  provider:\n    sqlite:\n      database: '${debDataPath}/store.db'"
+        )
+
+        copy {
+            from project.file('src/debian')
+            into debBuildDebianPath
+        }
+
+        ant.replace(
+                file: "${debBuildDebianPath}/control",
+                token: 'Version: 0',
+                value: "Version: ${debVersion}"
+        )
+
+        ant.replace(
+                file: "${debBuildDebianPath}/postinst",
+                token: '%DEB_DATA_DIR%',
+                value: debDataPath
+        )
+
+        ant.replace(
+                file: "${debBuildDebianPath}/postinst",
+                token: '%DEB_CONF_FILE%',
+                value: "${debConfPath}/pqvid.yaml"
+        )
+
+        ant.chmod(
+                file: "${debBuildDebianPath}/postinst",
+                perm: 'a+x'
+        )
+
+        ant.chmod(
+                file: "${debBuildDebianPath}/prerm",
+                perm: 'a+x'
+        )
+
+        copy {
+            from "${project.file('src/systemd/pqvid.service')}"
+            into debBuildSystemdPath
+        }
+
+        exec {
+            commandLine(
+                    'fakeroot',
+                    'dpkg-deb',
+                    '-b',
+                    debBuildBasePath,
+                    "${project.buildDir}/dist"
+            )
+        }
+    }
+}
+
+task dockerBuild(type: Exec) {
+    commandLine 'docker', 'build', '-t', dockerImageTag, project.rootDir
+
+    doLast {
+        exec {
+            commandLine 'docker', 'tag', dockerImageTag, "${dockerImageName}:latest-dev"
+        }
+    }
+}
+
+task dockerBuildX(type: Exec, dependsOn: shadowJar) {
+    commandLine 'docker', 'buildx', 'build', '--push', '--platform', 'linux/arm64,linux/amd64,linux/arm/v7', '-t', dockerImageTag , project.rootDir
+    doLast {
+        exec {
+            commandLine 'docker', 'buildx', 'build', '--push', '--platform', 'linux/arm64,linux/amd64,linux/arm/v7', '-t', "${dockerImageName}:latest-dev", project.rootDir
+        }
+    }
+}
+
+task dockerPush(type: Exec) {
+    commandLine 'docker', 'push', dockerImageTag
+
+    doLast {
+        exec {
+            commandLine 'docker', 'push', "${dockerImageName}:latest-dev"
+        }
+    }
+}
+
+task dockerPushX(type: Exec) {
+    commandLine 'docker', 'push', dockerImageTag
+
+    doLast {
+        exec {
+            commandLine 'docker', 'push', "${dockerImageName}:latest-dev"
+            commandLine 'docker', 'push', "${dockerImageName}:latest-amd64-dev"
+            commandLine 'docker', 'push', "${dockerImageName}:latest-arm64-dev"
+        }
+    }
+}
